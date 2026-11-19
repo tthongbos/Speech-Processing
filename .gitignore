@@ -1,0 +1,29 @@
+# Python environments and tooling
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.venv/
+venv/
+python_env/
+*.egg-info/
+build/
+dist/
+
+# Generated audio, model weights and caches
+outputs/
+.cache/
+.huggingface/
+checkpoints/
+*.wav
+*.mp3
+*.flac
+*.safetensors
+*.ckpt
+*.pt
+*.pth
+pytorch_model*.bin
+
+# Local configuration
+.env
+.env.*
