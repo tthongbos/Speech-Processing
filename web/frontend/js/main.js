@@ -482,6 +482,7 @@ function renderHistory() {
       <td class="text" title="${esc(h.text)}"><span>${esc(h.text.length > 90 ? h.text.slice(0, 88).trimEnd() + "…" : h.text)}</span></td>
       <td>${esc(h.engine_name)}</td>
       <td class="num" data-label="Bước">${steps}</td>
+      <td class="num" data-label="Thời gian sinh">${h.result_cached ? "từ cache" : secs(h.elapsed)}</td>
       <td class="num" data-label="Độ dài">${secs(h.duration)}</td>
       <td class="num" data-label="RTF">${h.rtf == null ? "chưa đo" : nf.format(h.rtf)}</td>
       <td class="num" data-label="Cache">${cache}</td>
