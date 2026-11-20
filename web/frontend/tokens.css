@@ -1,0 +1,42 @@
+:root {
+  --space-3xs: 2px; --space-2xs: 4px; --space-xs: 8px; --space-sm: 12px; --space-md: 16px; --space-lg: 24px; --space-xl: 40px; --space-2xl: 64px; --space-3xl: 96px; --space-4xl: 144px;
+  --text-xs: 0.75rem; --text-sm: 0.875rem; --text-md: 1rem; --text-lead: 1.125rem; --text-title: 1.5rem; --text-section: 1.875rem; --text-figure: 3rem; --text-display: 3.75rem;
+  --text-mono: 0.75rem;
+  --tracking-display: -0.057em; --tracking-section: -0.04em; --tracking-title: -0.025em; --tracking-body: -0.01em;
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1); --ease-in: cubic-bezier(0.7, 0, 0.84, 0); --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --dur-micro: 120ms; --dur-short: 220ms; --dur-long: 420ms;
+  --container: 1200px; --gutter: 64px; --gap-columns: 24px; --section-gap-s: 64px; --section-gap: 96px; --section-gap-l: 128px;
+  --z-base: 1; --z-raised: 10; --z-dropdown: 100; --z-sticky: 200; --z-sticky-nav: 300; --z-modal: 400; --z-toast: 500; --z-tooltip: 600;
+
+  /* Superwhisper system (DESIGN (1).md) in OKLCH: near-black canvas, charcoal steps, one electric blue */
+  --color-paper: oklch(8.5% 0.004 260);      /* midnight canvas */
+  --color-paper-2: oklch(15.5% 0.003 270);   /* obsidian card */
+  --color-paper-3: oklch(22.5% 0.004 260);   /* charcoal: inputs, chips, nav pill */
+  --color-paper-4: oklch(31.5% 0.004 260);   /* graphite: hover, slider track */
+  --color-navy: oklch(21% 0.06 250);         /* deep navy: the output card */
+  --color-navy-2: oklch(28% 0.07 250);
+  --color-indigo: oklch(13.5% 0.035 270);     /* midnight indigo: tinted cards */
+  --color-ink: oklch(98.5% 0.002 260);       /* white */
+  --color-ink-2: oklch(79.5% 0.007 260);     /* mist: secondary text */
+  --color-muted: oklch(65% 0.008 260);       /* ash: tertiary text */
+  --color-field: oklch(53% 0.008 260);       /* field and control edges, 3:1 on obsidian */
+  --color-rule: oklch(25% 0.005 260);        /* hairlines */
+  --color-accent: oklch(56% 0.2 254);        /* electric signal #0088ff, a step deeper so white reads on it */
+  --color-accent-ink: oklch(98.5% 0.002 260);
+  --color-accent-dim: oklch(40% 0.1 252);
+  --color-focus: oklch(70% 0.18 252);
+  --color-error: oklch(71% 0.16 30);
+  --color-success: oklch(77% 0.17 150);
+  --color-on-light: oklch(12% 0.004 260);    /* text on the white action */
+  --color-scrim: oklch(8.5% 0.004 260);
+
+  --font-display: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-body: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-outlier: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  --display-weight: 500;
+
+  --radius-card: 24px; --radius-small-card: 12px; --radius-input: 9px; --radius-button: 9px; --radius-pill: 9999px;
+  --rule-hair: 1px; --shadow-card: none;
+  --ring-card: inset 0 0 0 1px oklch(100% 0 0 / 0.07);
+  --ring-chip: inset 0 0 0 1px oklch(100% 0 0 / 0.12);
+}

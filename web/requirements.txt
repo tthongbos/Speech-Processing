@@ -1,0 +1,9 @@
+# Web server (needed everywhere, also for the mock mode on a laptop)
+fastapi>=0.110
+uvicorn[standard]>=0.27
+python-multipart>=0.0.9
+numpy>=1.24
+
+# Models (Python >= 3.10). `omnivoice` installs torch, torchaudio and transformers 5.x,
+# which also serve model 2 (MMS-TTS, transformers VitsModel).
+# omnivoice

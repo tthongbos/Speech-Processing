@@ -1,0 +1,282 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Vọng, đọc văn bản bằng giọng của bạn</title>
+  <meta name="description" content="Thu vài giây giọng nói, dán đoạn văn, nghe OmniVoice đọc lại bằng chính giọng đó. Đồ án môn Xử lý tiếng nói.">
+  <meta name="color-scheme" content="dark">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400..600&display=swap">
+  <link rel="preload" as="image" href="./media/night-lighthouse.jpg" fetchpriority="high">
+  <link rel="stylesheet" href="./app.css">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='9' fill='%23001b33'/%3E%3Cpath d='M9 12v8M13 9v14M17 13v6M21 10v12M25 14v4' stroke='%230088ff' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E">
+  <script type="module" src="./js/main.js"></script>
+</head>
+<body>
+  <a class="skip" href="#studio">Tới studio</a>
+
+  <header class="nav">
+    <nav class="nav__pill" aria-label="Trang">
+      <a class="wordmark" href="/" aria-label="Vọng, về đầu trang">Vọng</a>
+      <a class="nav__link" href="#studio">Studio</a>
+      <a class="nav__link" href="#history">Lịch sử</a>
+      <a class="nav__link" href="#cache">Cache</a>
+      <a class="nav__link" href="#models">Mô hình</a>
+    </nav>
+  </header>
+
+  <main id="top">
+    <section class="hero" aria-labelledby="pageTitle">
+      <img class="hero__image" src="./media/night-lighthouse.jpg" width="1920" height="1080" alt="" fetchpriority="high" decoding="async">
+      <div class="hero__body container">
+        <h1 id="pageTitle">Đọc văn bản bằng giọng của bạn</h1>
+        <p class="hero__lead">Thu 5 giây giọng nói, thêm đoạn văn, nghe đọc lại.</p>
+        <div class="hero__actions">
+          <button type="button" class="btn btn--primary" id="heroRecord">Thu giọng mẫu</button>
+          <button type="button" class="btn btn--secondary" id="heroUpload">Tải file ghi âm</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="studio container" id="studio" aria-labelledby="studioTitle">
+      <div class="studio__head">
+        <h2 id="studioTitle">Studio</h2>
+        <fieldset class="chips-seg" id="modelSwitch">
+          <legend class="visually-hidden">Mô hình</legend>
+          <input type="radio" name="model" id="m-omnivoice" value="omnivoice" checked>
+          <label for="m-omnivoice">OmniVoice</label>
+          <input type="radio" name="model" id="m-model2" value="model2">
+          <label for="m-model2">Mô hình 2</label>
+        </fieldset>
+      </div>
+
+      <div class="studio__grid">
+        <div class="studio__compose">
+
+          <!-- 1. Voice sample -->
+          <section class="card card--voice" aria-labelledby="voiceTitle">
+            <div class="card__head">
+              <h3 id="voiceTitle">Giọng mẫu</h3>
+              <p class="card__hint">Một người nói, tránh tạp âm, 3 đến 10 giây.</p>
+            </div>
+
+            <fieldset class="chips-seg" id="sourceSwitch">
+              <legend class="visually-hidden">Nguồn giọng mẫu</legend>
+              <input type="radio" name="source" id="src-upload" value="upload" checked>
+              <label for="src-upload">Tải file</label>
+              <input type="radio" name="source" id="src-record" value="record">
+              <label for="src-record">Thu âm</label>
+              <input type="radio" name="source" id="src-saved" value="saved">
+              <label for="src-saved">Đã lưu <span class="count num" id="savedCount"></span></label>
+            </fieldset>
+
+            <div class="source" data-source="upload">
+              <input class="visually-hidden" type="file" id="fileInput" name="voice" accept="audio/*,.m4a,.mp3,.wav,.ogg,.oga,.flac,.aac,.webm,.opus,.mp4">
+              <label class="drop" id="drop" for="fileInput">
+                <svg class="drop__icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 16V4m0 0-4.5 4.5M12 4l4.5 4.5M4 15v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                <span class="drop__title">Kéo file vào đây hoặc bấm để chọn</span>
+                <span class="drop__meta">m4a, mp3, wav, ogg, flac, aac, webm. Tối đa <span id="maxUpload">25</span>&nbsp;MB, chỉ lấy <span id="maxRef">30</span>&nbsp;giây đầu.</span>
+              </label>
+            </div>
+
+            <div class="source" data-source="record" hidden>
+              <div class="rec">
+                <button type="button" class="rec__btn" id="recBtn" aria-pressed="false">
+                  <span class="rec__glyph" aria-hidden="true"></span>
+                  <span id="recLabel">Bắt đầu thu</span>
+                </button>
+                <div class="rec__meter">
+                  <canvas id="recCanvas" class="rec__canvas" role="img" aria-label="Mức âm lượng micro"></canvas>
+                  <p class="rec__time"><span class="num" id="recTime">0,0</span>&nbsp;giây <span class="rec__advice" id="recAdvice">Khoảng 5 giây là đủ.</span></p>
+                </div>
+              </div>
+            </div>
+
+            <div class="source" data-source="saved" hidden>
+              <ul class="saved" id="savedList" aria-live="polite"></ul>
+              <p class="empty" id="savedEmpty" hidden>Chưa có giọng nào. Giọng bạn tải lên hoặc thu sẽ nằm ở đây để dùng lại.</p>
+            </div>
+
+            <div class="sample" id="sample" hidden>
+              <button type="button" class="iconbtn" id="samplePlay" aria-label="Nghe giọng mẫu">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path class="i-play" d="M8 5.5v13l10-6.5z" fill="currentColor"/><path class="i-pause" d="M7 5h3.5v14H7zM13.5 5H17v14h-3.5z" fill="currentColor"/></svg>
+              </button>
+              <canvas class="sample__wave" id="sampleWave" role="img" aria-label="Dạng sóng giọng mẫu"></canvas>
+              <div class="sample__meta">
+                <p class="sample__name" id="sampleName">Giọng mẫu</p>
+                <p class="sample__dur num" id="sampleDur"></p>
+              </div>
+              <audio id="sampleAudio" preload="none"></audio>
+            </div>
+            <p class="note" id="voiceNote" role="status"></p>
+
+            <div class="field">
+              <label for="refText">Lời trong đoạn mẫu <span class="field__opt">không bắt buộc</span></label>
+              <textarea id="refText" name="ref_text" rows="2" autocomplete="off" placeholder="Để trống thì Vọng tự chép lời"></textarea>
+            </div>
+          </section>
+
+          <!-- 2. Text -->
+          <section class="card card--text" aria-labelledby="textTitle">
+            <div class="card__head">
+              <h3 id="textTitle">Văn bản</h3>
+              <p class="card__hint"><kbd>⌘&nbsp;Enter</kbd> hoặc <kbd>Ctrl&nbsp;Enter</kbd> để đọc</p>
+            </div>
+            <div class="field">
+              <label class="visually-hidden" for="text">Văn bản cần đọc</label>
+              <textarea id="text" name="text" rows="9" autocomplete="off" spellcheck="false"></textarea>
+              <p class="textmeta">
+                <span><span class="num" id="charCount">0</span>/<span class="num" id="charMax">6000</span> ký tự</span>
+                <span><span class="num" id="segCount">0</span> câu</span>
+                <span id="estDur"></span>
+              </p>
+            </div>
+            <div class="tools">
+              <div class="chips" role="group" aria-label="Câu mẫu">
+                <button type="button" class="chip" data-sample="numbers">Câu có số</button>
+                <button type="button" class="chip" data-sample="academic">Đoạn học thuật</button>
+                <button type="button" class="chip" data-sample="hello">Lời chào</button>
+                <button type="button" class="chip chip--pause" id="insertPause">Chèn khoảng nghỉ</button>
+              </div>
+              <p class="tools__help">Viết <code>[nghỉ 1.5s]</code> hoặc <code>[nghỉ 800ms]</code> để ngừng đúng chừng đó.</p>
+            </div>
+            <details class="normalized" id="normalized">
+              <summary>Xem văn bản sau chuẩn hoá</summary>
+              <ol class="segments" id="segments"></ol>
+            </details>
+          </section>
+        </div>
+
+        <div class="studio__side">
+          <!-- 3. Output -->
+          <section class="output" aria-labelledby="outputTitle">
+            <h3 class="visually-hidden" id="outputTitle">Kết quả</h3>
+            <div class="player" id="device">
+              <div class="player__screen" id="screen" role="progressbar" aria-label="Tiến độ sinh audio" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+                <div class="player__readout">
+                  <p class="player__big num" id="pct">Chưa có audio</p>
+                  <p class="player__stage" id="stage">Chọn giọng mẫu rồi nhập văn bản</p>
+                  <p class="player__detail num" id="detail"></p>
+                </div>
+                <canvas class="player__wave" id="matrix" aria-hidden="true"></canvas>
+              </div>
+              <div class="player__controls">
+                <button type="button" class="player__play" id="play" aria-label="Phát kết quả" disabled>
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path class="i-play" d="M8 5.5v13l10-6.5z" fill="currentColor"/><path class="i-pause" d="M7 5h3.5v14H7zM13.5 5H17v14h-3.5z" fill="currentColor"/></svg>
+                </button>
+                <p class="player__time num"><span id="tNow">0:00</span> / <span id="tTotal">0:00</span></p>
+                <a class="btn btn--secondary btn--small" id="download" href="#" download aria-disabled="true" tabindex="-1">Tải WAV</a>
+              </div>
+              <audio id="resultAudio" preload="auto"></audio>
+            </div>
+
+            <div class="go">
+              <button type="button" class="btn btn--primary btn--wide" id="generate">Đọc bằng giọng này</button>
+              <button type="button" class="btn btn--secondary" id="cancel" hidden>Huỷ</button>
+            </div>
+            <p class="go__why" id="goWhy" role="status"></p>
+
+            <dl class="stats" id="stats" aria-live="polite">
+              <div><dt>Thời gian sinh</dt><dd class="num" id="sElapsed" data-empty="true">chưa có</dd></div>
+              <div><dt>Độ dài</dt><dd class="num" id="sDur" data-empty="true">chưa có</dd></div>
+              <div><dt>RTF</dt><dd class="num" id="sRtf" data-empty="true">chưa có</dd></div>
+              <div><dt>Từ cache</dt><dd class="num" id="sCache" data-empty="true">chưa có</dd></div>
+            </dl>
+          </section>
+
+          <!-- 4. Config -->
+          <section class="card card--config" aria-labelledby="configTitle">
+            <div class="card__head card__head--row">
+              <h3 id="configTitle">Cấu hình</h3>
+              <button type="button" class="linkbtn" id="resetParams">Về mặc định</button>
+            </div>
+            <fieldset class="chips-seg chips-seg--presets" id="presets">
+              <legend>Số bước giải mã</legend>
+            </fieldset>
+            <div class="params" id="paramsBasic"></div>
+            <details class="more">
+              <summary>Tham số nâng cao</summary>
+              <div class="params" id="paramsAdvanced"></div>
+            </details>
+            <details class="more">
+              <summary>Xử lý văn bản và hiệu năng</summary>
+              <div class="params" id="paramsPipeline"></div>
+            </details>
+          </section>
+        </div>
+      </div>
+    </section>
+
+    <!-- History -->
+    <section class="block container" id="history" aria-labelledby="historyTitle">
+      <h2 id="historyTitle">Lịch sử</h2>
+      <div class="tablewrap">
+        <table class="table" id="historyTable">
+          <thead>
+            <tr><th scope="col">Lúc</th><th scope="col">Văn bản</th><th scope="col">Mô hình</th><th scope="col" class="num">Bước</th><th scope="col" class="num">Độ dài</th><th scope="col" class="num">RTF</th><th scope="col" class="num">Cache</th><th scope="col"><span class="visually-hidden">Thao tác</span></th></tr>
+          </thead>
+          <tbody id="historyBody">
+            <tr class="skeleton"><td colspan="8"><span></span><span></span><span></span></td></tr>
+          </tbody>
+        </table>
+        <p class="empty" id="historyEmpty" hidden>Chưa đọc lần nào. Mỗi lần đọc sẽ hiện ở đây cùng thời gian sinh và RTF.</p>
+        <button type="button" class="linkbtn history__more" id="historyMore" aria-controls="historyBody" hidden></button>
+        <p class="empty empty--error" id="historyError" hidden>Không tải được lịch sử. Kiểm tra máy chủ rồi tải lại trang.</p>
+      </div>
+    </section>
+
+    <!-- Cache -->
+    <section class="block container" id="cache" aria-labelledby="cacheTitle">
+      <div class="block__head">
+        <h2 id="cacheTitle">Bộ nhớ đệm</h2>
+        <button type="button" class="btn btn--secondary" id="clearCache">Xoá cache</button>
+      </div>
+      <dl class="layers">
+        <div class="layer">
+          <dt><span class="layer__n num" id="cVoices">0</span> giọng mẫu</dt>
+          <dd>Nhận diện bằng SHA-256 của file. Tải lại cùng một file thì không giải mã lại.</dd>
+        </div>
+        <div class="layer">
+          <dt><span class="layer__n num" id="cPrompts">0</span> voice prompt</dt>
+          <dd>Acoustic token và lời chép của giọng mẫu, lưu trên đĩa và trong RAM. Lần sau bỏ qua Vọng.</dd>
+        </div>
+        <div class="layer">
+          <dt><span class="layer__n num" id="cSegments">0</span> câu đã sinh</dt>
+          <dd>Sửa một câu thì chỉ câu đó được sinh lại. Đổi khoảng nghỉ thì chỉ ghép lại.</dd>
+        </div>
+        <div class="layer">
+          <dt><span class="layer__n num" id="cResults">0</span> file hoàn chỉnh</dt>
+          <dd>Cùng nội dung và cấu hình thì phát ngay, không chạy GPU.</dd>
+        </div>
+      </dl>
+      <p class="cache__foot num" id="cacheFoot"></p>
+    </section>
+
+    <!-- Models -->
+    <section class="block container" id="models" aria-labelledby="modelsTitle">
+      <div class="models">
+        <figure class="models__photo" data-slot="studio-mic" data-alt="Micro thu âm trong phòng thu">
+          <img src="./media/microphone.jpg" width="1920" height="1280" loading="lazy" alt="Micro tụ Neumann U87 trên giá chống rung trong phòng thu" style="object-position: 40% 40%">
+        </figure>
+        <div class="models__body">
+          <h2 id="modelsTitle">Hai mô hình</h2>
+          <p class="block__lede">Cùng giọng mẫu, cùng văn bản, đổi mô hình ở đầu studio để so sánh.</p>
+          <div class="modelcards" id="modelCards"></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="container footer__in">
+      <p class="footer__mark">Vọng</p>
+      <p>Đồ án môn Xử lý tiếng nói. OmniVoice: code Apache&nbsp;2.0, trọng số CC-BY-NC, chỉ dùng cho nghiên cứu phi thương mại.</p>
+      <p class="footer__credits" data-credits>Ảnh: <a href="https://commons.wikimedia.org/wiki/File:2017-04_Circumpolar_trails_sunset_at_La_Hague_lighthouse.jpg">Antoine Lamielle</a> (CC BY-SA 4.0), <a href="https://commons.wikimedia.org/wiki/File:Neumann_U87_Condenser_Microphone_-_Studio_A,_In_Your_Ear_Studios.jpg">Will Fisher</a> (CC BY-SA 2.0), Wikimedia Commons.</p>
+    </div>
+  </footer>
+
+  <div class="toast" id="toast" role="alert" hidden></div>
+</body>
+</html>

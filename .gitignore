@@ -27,3 +27,7 @@ pytorch_model*.bin
 # Local configuration
 .env
 .env.*
+
+# Website runtime data
+web/cache/
+.hallmark/
