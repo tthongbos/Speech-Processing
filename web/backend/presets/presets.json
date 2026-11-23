@@ -1,0 +1,85 @@
+{
+ "license": "FLEURS (Conneau et al., 2022), Google, CC BY 4.0",
+ "voices": [
+  {
+   "slug": "nu-cao",
+   "name": "Nữ, giọng cao",
+   "gender": "nữ",
+   "transcript": "Trong cái nóng ban ngày, du khách có thể trải qua ảo ảnh giống như ảo giác về nước (hoặc những thứ khác).",
+   "f0_hz": 293.8,
+   "pitch_var_semitones": 3.68,
+   "syllables_per_s": 4.26,
+   "source": "FLEURS vi_vn train, 10445522320717513132.wav"
+  },
+  {
+   "slug": "nu-tram",
+   "name": "Nữ, giọng trầm",
+   "gender": "nữ",
+   "transcript": "Thỉnh thoảng, các tour du lịch hàng không đi vào đất liền, để leo núi hoặc tới Địa Cực, nơi có một căn cứ lớn.",
+   "f0_hz": 193.8,
+   "pitch_var_semitones": 4.64,
+   "syllables_per_s": 4.17,
+   "source": "FLEURS vi_vn train, 10521700850329393373.wav"
+  },
+  {
+   "slug": "nu-vua",
+   "name": "Nữ, giọng vừa",
+   "gender": "nữ",
+   "transcript": "Nhà chức trách không cung cấp nhiều thông tin chính thức ngoài việc xác nhận vụ bắt giữ ngày hôm nay.",
+   "f0_hz": 264.0,
+   "pitch_var_semitones": 4.28,
+   "syllables_per_s": 4.28,
+   "source": "FLEURS vi_vn train, 10351951202367510244.wav"
+  },
+  {
+   "slug": "nu-cham",
+   "name": "Nữ, đọc chậm đều",
+   "gender": "nữ",
+   "transcript": "Hồ Onega cũng được kết nối với Volga, vì vậy vẫn có thể đi từ Biển Caspi qua Nga.",
+   "f0_hz": 230.5,
+   "pitch_var_semitones": 2.06,
+   "syllables_per_s": 3.19,
+   "source": "FLEURS vi_vn train, 10025740871826837649.wav"
+  },
+  {
+   "slug": "nam-tram",
+   "name": "Nam, giọng trầm",
+   "gender": "nam",
+   "transcript": "Vệ tinh trong không gian nhận cuộc gọi và sau đó phản lại xuống, gần như tức thì.",
+   "f0_hz": 108.2,
+   "pitch_var_semitones": 6.33,
+   "syllables_per_s": 3.9,
+   "source": "FLEURS vi_vn dev, 11988143203465826825.wav"
+  },
+  {
+   "slug": "nam-cao",
+   "name": "Nam, giọng cao",
+   "gender": "nam",
+   "transcript": "Cà ri có thể “khô” hoặc “ướt” tùy vào lượng nước sốt trong đó.",
+   "f0_hz": 174.7,
+   "pitch_var_semitones": 2.78,
+   "syllables_per_s": 4.23,
+   "source": "FLEURS vi_vn dev, 14574928901658814075.wav"
+  },
+  {
+   "slug": "nam-ngu-dieu",
+   "name": "Nam, nhiều ngữ điệu",
+   "gender": "nam",
+   "transcript": "Amazon cũng là con sông rộng nhất trên trái đất, có những thời điểm nó rộng những sáu dặm.",
+   "f0_hz": 157.4,
+   "pitch_var_semitones": 6.39,
+   "syllables_per_s": 3.8,
+   "source": "FLEURS vi_vn dev, 16348560548052410630.wav"
+  },
+  {
+   "slug": "nam-nhanh",
+   "name": "Nam, đọc nhanh",
+   "gender": "nam",
+   "transcript": "Điện thoại vệ tinh nói chung không phải là sự thay thế cho điện thoại di động, vì bạn phải ở ngoài trời và phải có tầm nhìn thông thoáng thẳng đến vệ tinh thì mới sử dụng được.",
+   "f0_hz": 121.4,
+   "pitch_var_semitones": 2.54,
+   "syllables_per_s": 5.91,
+   "source": "FLEURS vi_vn dev, 10096143719994033924.wav"
+  }
+ ]
+}

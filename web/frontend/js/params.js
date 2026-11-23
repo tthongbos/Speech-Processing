@@ -19,12 +19,13 @@ function control(p, value, onChange, disabled) {
   const id = `p-${p.key}`;
   const wrap = document.createElement("div");
   wrap.className = `param param--${p.type}`;
-  const help = p.help ? `<p class="param__help" id="${id}-help">${p.help}</p>` : "";
-  const described = p.help ? `aria-describedby="${id}-help"` : "";
+  const help = "";
+  const tip = p.help ? ` title="${p.help.replace(/"/g, "&quot;")}"` : "";
+  const described = "";
 
   if (p.type === "bool") {
     wrap.innerHTML = `
-      <label class="param__label" for="${id}">${p.label}</label>
+      <label class="param__label" for="${id}"${tip}>${p.label}</label>
       <span class="switch"><input type="checkbox" role="switch" id="${id}" ${described} ${value ? "checked" : ""} ${disabled ? "disabled" : ""}><span></span></span>
       ${help}`;
     wrap.querySelector("input").addEventListener("change", (e) => onChange(p.key, e.target.checked));
@@ -34,7 +35,7 @@ function control(p, value, onChange, disabled) {
   if (p.type === "select") {
     const opts = p.options.map((o) => `<option value="${o.value}" ${o.value === value ? "selected" : ""}>${o.label}</option>`).join("");
     wrap.innerHTML = `
-      <div class="param__top"><label class="param__label" for="${id}">${p.label}</label>
+      <div class="param__top"><label class="param__label" for="${id}"${tip}>${p.label}</label>
       <select id="${id}" ${described} ${disabled ? "disabled" : ""}>${opts}</select></div>
       ${help}`;
     wrap.querySelector("select").addEventListener("change", (e) => onChange(p.key, e.target.value));
@@ -42,7 +43,7 @@ function control(p, value, onChange, disabled) {
   }
 
   wrap.innerHTML = `
-    <div class="param__top"><label class="param__label" for="${id}">${p.label}</label>
+    <div class="param__top"><label class="param__label" for="${id}"${tip}>${p.label}</label>
     <output class="param__value" for="${id}" id="${id}-out">${formatValue(p, value)}</output></div>
     <input type="range" id="${id}" min="${p.min}" max="${p.max}" step="${p.step}" value="${value}" ${described} ${disabled ? "disabled" : ""}>
     ${help}`;

@@ -20,6 +20,7 @@ from . import audio, config
 from .engines import build_engines
 from .jobs import TERMINAL, JobManager
 from .pauses import plan_text
+from .presets import seed_presets
 from .store import Store
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(name)s %(levelname)s %(message)s")
@@ -50,6 +51,7 @@ def _load_engines() -> None:
 
 @app.on_event("startup")
 def _startup() -> None:
+    log.info("seeded %d preset voices", seed_presets(store))
     threading.Thread(target=_load_engines, name="engine-loader", daemon=True).start()
 
 
@@ -139,9 +141,11 @@ def voice_audio(voice_id: str):
 @app.delete("/api/voices/{voice_id}")
 def delete_voice(voice_id: str) -> Dict[str, Any]:
     try:
-        store.voice_meta(voice_id)
+        meta = store.voice_meta(voice_id)
     except KeyError:
         raise HTTPException(404, "Không có giọng này.")
+    if meta.get("preset"):
+        raise HTTPException(403, "Không xoá được giọng có sẵn.")
     store.delete_voice(voice_id)
     return {"ok": True}
 
@@ -268,4 +272,14 @@ async def http_error(_request, exc: HTTPException):
     return JSONResponse({"error": exc.detail}, status_code=exc.status_code)
 
 
-app.mount("/", StaticFiles(directory=str(config.FRONTEND_DIR), html=True), name="site")
+class SiteFiles(StaticFiles):
+    """The UI changes often during the project: make browsers revalidate (ETag) instead of reusing stale CSS/JS."""
+
+    async def get_response(self, path, scope):
+        response = await super().get_response(path, scope)
+        if not path.startswith("media/"):
+            response.headers["Cache-Control"] = "no-cache"
+        return response
+
+
+app.mount("/", SiteFiles(directory=str(config.FRONTEND_DIR), html=True), name="site")

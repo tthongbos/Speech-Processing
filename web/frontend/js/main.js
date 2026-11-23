@@ -1,7 +1,7 @@
-import { api } from "./api.js";
-import { WaveLine, drawStrip, loadPeaks } from "./wave.js";
-import { Recorder } from "./recorder.js";
-import { defaultsOf, renderParams, renderPresets, syncPresets } from "./params.js";
+import { api } from "./api.js?v=4";
+import { WaveLine, drawStrip, loadPeaks } from "./wave.js?v=4";
+import { Recorder } from "./recorder.js?v=4";
+import { defaultsOf, renderParams, renderPresets, syncPresets } from "./params.js?v=4";
 
 const $ = (id) => document.getElementById(id);
 const nf = new Intl.NumberFormat("vi-VN", { maximumFractionDigits: 2 });
@@ -84,8 +84,6 @@ async function refreshStatus() {
 function renderStatus() {
   const s = state.status;
   if (!s) return;
-  $("maxUpload").textContent = s.limits.max_upload_mb;
-  $("maxRef").textContent = s.limits.max_ref_seconds;
   $("charMax").textContent = s.limits.max_text;
   if ($("text").maxLength !== s.limits.max_text) { $("text").maxLength = s.limits.max_text; onTextInput(); }
   const c = s.cache;
@@ -113,7 +111,6 @@ function renderModelCards() {
     <article class="modelcard" data-placeholder="${m.placeholder}">
       <div><h3>${esc(m.name)}</h3><p class="modelcard__tag">${esc(m.tagline)}</p></div>
       <dl>${m.facts.map((f) => `<div><dt>${esc(f.label)}</dt><dd>${f.value.includes("/") && f.value.endsWith(".py") ? `<code>${esc(f.value)}</code>` : esc(f.value)}</dd></div>`).join("")}
-        <div><dt>Tham số</dt><dd>${m.params.filter((p) => p.group !== "pipeline").map((p) => esc(p.label)).join(", ")}</dd></div>
       </dl>
     </article>`).join("");
 }
@@ -138,8 +135,10 @@ function selectModel(id) {
   renderConfig();
   updateGo();
   const m = model();
-  if (m && m.needs_voice === false) note(`${m.name} đọc bằng giọng có sẵn của mô hình, không dùng giọng mẫu.`);
-  else if ($("voiceNote").textContent.includes("giọng có sẵn")) note("");
+  const noVoice = m && m.needs_voice === false;
+  $("voiceReq").hidden = noVoice;
+  if (noVoice) note(`${m.name} không dùng giọng mẫu.`);
+  else if ($("voiceNote").textContent.includes("không dùng giọng mẫu")) note("");
   if (!state.result) idleScreen();
 }
 
@@ -163,7 +162,7 @@ function idleScreen() {
   }
   matrix.idle();
   const ready = state.voice || m?.needs_voice === false;
-  screen({ pct: "Chưa có audio", text: true, stage: ready ? "Nhập văn bản rồi bấm đọc" : "Chọn giọng mẫu rồi nhập văn bản", value: 0 });
+  screen({ pct: "Chưa có audio", text: true, stage: ready ? "" : "Cần giọng mẫu", value: 0 });
 }
 
 // ---------- go button ----------
@@ -184,8 +183,8 @@ function updateGo() {
   btn.textContent = busy ? "Đang đọc" : "Đọc bằng giọng này";
   $("cancel").hidden = !busy;
   let why = block?.msg || "";
-  if (!why && engineState() === "loading") why = "Mô hình đang nạp, bấm đọc thì sẽ chạy ngay khi nạp xong.";
-  if (!why && state.status?.mock) why = "Máy chủ đang chạy chế độ thử không có GPU, âm thanh chỉ là tín hiệu giả.";
+  if (!why && engineState() === "loading") why = "Đang nạp mô hình";
+  if (!why && state.status?.mock) why = "Chế độ thử, âm thanh giả";
   $("goWhy").textContent = busy ? "" : why;
 }
 
@@ -200,17 +199,38 @@ async function refreshVoices() {
 }
 
 function renderSaved() {
-  const list = $("savedList");
-  $("savedCount").textContent = state.voices.length ? String(state.voices.length) : "";
-  $("savedEmpty").hidden = state.voices.length > 0;
-  list.innerHTML = state.voices.map((v) => `
+  const own = state.voices.filter((v) => !v.preset);
+  const presets = state.voices.filter((v) => v.preset).sort((a, b) => a.order - b.order);
+  $("savedCount").textContent = own.length ? String(own.length) : "";
+  $("savedEmpty").hidden = own.length > 0;
+  $("savedList").innerHTML = own.map((v) => `
     <li>
       <button type="button" class="saved__pick" data-pick="${v.id}" aria-current="${state.voice?.id === v.id}">
         <span class="saved__name">${esc(v.name)}</span>
-        <span class="saved__meta">${secs(v.duration)}, ${v.source === "record" ? "thu âm" : "tải lên"}${v.transcript ? ", đã có lời chép" : ""}</span>
+        <span class="saved__meta">${secs(v.duration)}</span>
       </button>
       <button type="button" class="linkbtn" data-del="${v.id}" aria-label="Xoá giọng ${esc(v.name)}">Xoá</button>
     </li>`).join("");
+  $("presetList").innerHTML = presets.map((v) => `
+    <li>
+      <button type="button" class="iconbtn iconbtn--small" data-preview="${v.id}" aria-label="Nghe thử ${esc(v.name)}" data-playing="${previewing === v.id}">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path class="i-play" d="M8 5.5v13l10-6.5z" fill="currentColor"/><path class="i-pause" d="M7 5h3.5v14H7zM13.5 5H17v14h-3.5z" fill="currentColor"/></svg>
+      </button>
+      <button type="button" class="saved__pick" data-pick="${v.id}" aria-current="${state.voice?.id === v.id}">
+        <span class="saved__name">${esc(v.name)}</span>
+        <span class="saved__meta">${secs(v.duration)}</span>
+      </button>
+    </li>`).join("");
+}
+
+// one shared player for previewing presets
+const previewAudio = new Audio();
+let previewing = null;
+previewAudio.addEventListener("ended", () => { previewing = null; renderSaved(); });
+function togglePreview(id) {
+  if (previewing === id) { previewAudio.pause(); previewing = null; }
+  else { previewAudio.src = api.voiceAudioUrl(id); previewAudio.play().catch(() => {}); previewing = id; sampleAudio.pause(); }
+  renderSaved();
 }
 
 async function setVoice(meta, { quiet = false } = {}) {
@@ -222,17 +242,17 @@ async function setVoice(meta, { quiet = false } = {}) {
   $("sample").hidden = false;
   $("sampleName").textContent = meta.name;
   $("sampleDur").textContent = secs(meta.duration);
-  $("refText").value = state.refTexts[meta.id] || "";
+  $("refText").value = state.refTexts[meta.id] ?? (meta.preset ? meta.transcript : "");
   $("refText").placeholder = meta.transcript
     ? `Vọng đã chép: ${meta.transcript}`
     : "Để trống thì Vọng tự chép lời, kết quả được lưu lại cho lần sau";
   sampleAudio.src = api.voiceAudioUrl(meta.id);
   if (!quiet) {
     const d = meta.duration;
-    if (meta.reused) note("File này đã có trong cache, dùng lại ngay.");
+    if (meta.reused) note("Đã có trong cache.");
     else if (meta.truncated) note(`Đã cắt còn ${secs(d)} đầu tiên.`);
-    else if (d < 3) note("Đoạn mẫu hơi ngắn, giọng clone có thể chưa giống. Nên dùng 3 đến 10 giây.");
-    else if (d > 15) note("Đoạn mẫu dài, mô hình sẽ chậm hơn. 3 đến 10 giây là đủ.");
+    else if (d < 3) note("Hơi ngắn, nên 3 đến 10 giây.");
+    else if (d > 15) note("Hơi dài, nên 3 đến 10 giây.");
     else note("");
   }
   renderSaved();
@@ -274,20 +294,17 @@ let recorder = null;
 async function toggleRecord() {
   const btn = $("recBtn");
   if (recorder?.recording) { recorder.stop(); return; }
-  if (!Recorder.supported()) return note("Trình duyệt này không cho thu âm. Hãy tải file lên.", "error");
+  if (!Recorder.supported()) return note("Trình duyệt không hỗ trợ thu âm.", "error");
   recorder = new Recorder({
     canvas: $("recCanvas"),
     maxSeconds: Math.min(30, state.status?.limits.max_ref_seconds || 30),
     onTick: (s) => {
       $("recTime").textContent = nf1.format(s);
-      const advice = $("recAdvice");
-      advice.dataset.ok = String(s >= 3);
-      advice.textContent = s < 3 ? "Khoảng 5 giây là đủ." : s < 10 ? "Đủ dài rồi, bấm dừng khi nói xong." : "Hơi dài, nên dừng.";
     },
     onStop: (file, seconds) => {
       btn.setAttribute("aria-pressed", "false");
       $("recLabel").textContent = "Thu lại";
-      if (seconds < 1) return note("Bản thu ngắn quá, hãy thu lại.", "error");
+      if (seconds < 1) return note("Bản thu quá ngắn.", "error");
       upload(file, "record");
     },
   });
@@ -310,16 +327,12 @@ function scheduleNormalize() {
 async function runNormalize() {
   const text = $("text").value;
   const v = values();
-  if (!text.trim()) { $("segCount").textContent = "0"; $("segments").replaceChildren(); $("estDur").textContent = ""; return; }
+  if (!text.trim()) { $("segments").replaceChildren(); return; }
   try {
     const res = await api.normalize(text, v.normalize_vi ?? true, v.split_sentences ?? true);
-    $("segCount").textContent = String(res.segments.length);
     const pause = (ms) => `<span class="pausemark">nghỉ ${nf.format(ms / 1000)} s</span>`;
     $("segments").innerHTML = res.segments.map((s, i) =>
       `<li>${res.pauses_before[i] ? pause(res.pauses_before[i]) : ""}${esc(s)}${i === res.segments.length - 1 && res.tail_ms ? pause(res.tail_ms) : ""}</li>`).join("");
-    const chars = res.segments.join(" ").length;
-    const secsEst = chars / 14 / (v.speed || 1) + res.explicit_ms / 1000;
-    $("estDur").textContent = `khoảng ${Math.max(1, Math.round(secsEst))} giây audio`;
   } catch { /* keep the last preview */ }
 }
 function onTextInput() {
@@ -337,7 +350,7 @@ async function generate() {
   const block = goBlocker();
   if (block) return toast(block.msg);
   if (!state.voice && model().needs_voice !== false) {
-    note("Cần giọng mẫu: tải file lên hoặc thu âm trước.", "error");
+    note("Cần giọng mẫu.", "error");
     document.querySelector('label[for="src-upload"]').scrollIntoView({ block: "center" });
     $("src-upload").focus();
     return;
@@ -418,6 +431,7 @@ async function cancel() {
 async function showResult(r, { autoplay = false, label = "" } = {}) {
   state.result = r;
   ["sElapsed", "sDur", "sRtf", "sCache"].forEach((id) => { $(id).dataset.empty = "false"; });
+  $("stats").hidden = false;
   $("sElapsed").textContent = secs(r.elapsed);
   $("sDur").textContent = secs(r.duration);
   $("sRtf").textContent = r.rtf == null ? "chưa đo" : nf.format(r.rtf);
@@ -510,7 +524,7 @@ function reuse(h) {
   onTextInput();
   const v = state.voices.find((x) => x.id === h.voice_id);
   if (v) setVoice(v, { quiet: true });
-  else if (h.voice_id) note("Giọng mẫu của lần này đã bị xoá, hãy chọn giọng khác.", "error");
+  else if (h.voice_id) note("Giọng mẫu này đã bị xoá.", "error");
   $("studio").scrollIntoView({ block: "start" });
 }
 
@@ -527,6 +541,12 @@ function wire() {
 
   $("recBtn").addEventListener("click", toggleRecord);
 
+  $("presetList").addEventListener("click", (e) => {
+    const prev = e.target.closest("[data-preview]");
+    const pick = e.target.closest("[data-pick]");
+    if (prev) togglePreview(prev.dataset.preview);
+    if (pick) setVoice(state.voices.find((v) => v.id === pick.dataset.pick));
+  });
   $("savedList").addEventListener("click", async (e) => {
     const pick = e.target.closest("[data-pick]");
     const del = e.target.closest("[data-del]");
@@ -662,8 +682,8 @@ async function init() {
   const vid = saved.get("voiceId", null);
   const v = state.voices.find((x) => x.id === vid);
   if (v) await setVoice(v, { quiet: true });
-  else if (state.voices.length) showSource("upload");
-  if (!state.result) idleScreen();
+  else showSource(document.querySelector('input[name="source"]:checked').value);
+  selectModel(state.modelId);
 }
 
 init();

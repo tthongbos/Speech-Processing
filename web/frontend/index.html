@@ -10,9 +10,9 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400..600&display=swap">
   <link rel="preload" as="image" href="./media/night-lighthouse.jpg" fetchpriority="high">
-  <link rel="stylesheet" href="./app.css">
+  <link rel="stylesheet" href="./app.css?v=4">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='9' fill='%23001b33'/%3E%3Cpath d='M9 12v8M13 9v14M17 13v6M21 10v12M25 14v4' stroke='%230088ff' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E">
-  <script type="module" src="./js/main.js"></script>
+  <script type="module" src="./js/main.js?v=4"></script>
 </head>
 <body>
   <a class="skip" href="#studio">Tới studio</a>
@@ -57,14 +57,13 @@
 
           <!-- 1. Voice sample -->
           <section class="card card--voice" aria-labelledby="voiceTitle">
-            <div class="card__head">
-              <h3 id="voiceTitle">Giọng mẫu</h3>
-              <p class="card__hint">Một người nói, tránh tạp âm, 3 đến 10 giây.</p>
-            </div>
+            <h3 id="voiceTitle">Giọng mẫu<span class="req" id="voiceReq" aria-hidden="true">*</span></h3>
 
             <fieldset class="chips-seg" id="sourceSwitch">
               <legend class="visually-hidden">Nguồn giọng mẫu</legend>
-              <input type="radio" name="source" id="src-upload" value="upload" checked>
+              <input type="radio" name="source" id="src-preset" value="preset" checked>
+              <label for="src-preset">Có sẵn</label>
+              <input type="radio" name="source" id="src-upload" value="upload">
               <label for="src-upload">Tải file</label>
               <input type="radio" name="source" id="src-record" value="record">
               <label for="src-record">Thu âm</label>
@@ -72,12 +71,15 @@
               <label for="src-saved">Đã lưu <span class="count num" id="savedCount"></span></label>
             </fieldset>
 
-            <div class="source" data-source="upload">
+            <div class="source" data-source="preset">
+              <ul class="saved saved--presets" id="presetList" aria-live="polite"></ul>
+            </div>
+
+            <div class="source" data-source="upload" hidden>
               <input class="visually-hidden" type="file" id="fileInput" name="voice" accept="audio/*,.m4a,.mp3,.wav,.ogg,.oga,.flac,.aac,.webm,.opus,.mp4">
               <label class="drop" id="drop" for="fileInput">
                 <svg class="drop__icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 16V4m0 0-4.5 4.5M12 4l4.5 4.5M4 15v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
                 <span class="drop__title">Kéo file vào đây hoặc bấm để chọn</span>
-                <span class="drop__meta">m4a, mp3, wav, ogg, flac, aac, webm. Tối đa <span id="maxUpload">25</span>&nbsp;MB, chỉ lấy <span id="maxRef">30</span>&nbsp;giây đầu.</span>
               </label>
             </div>
 
@@ -89,14 +91,14 @@
                 </button>
                 <div class="rec__meter">
                   <canvas id="recCanvas" class="rec__canvas" role="img" aria-label="Mức âm lượng micro"></canvas>
-                  <p class="rec__time"><span class="num" id="recTime">0,0</span>&nbsp;giây <span class="rec__advice" id="recAdvice">Khoảng 5 giây là đủ.</span></p>
+                  <p class="rec__time"><span class="num" id="recTime">0,0</span>&nbsp;s</p>
                 </div>
               </div>
             </div>
 
             <div class="source" data-source="saved" hidden>
               <ul class="saved" id="savedList" aria-live="polite"></ul>
-              <p class="empty" id="savedEmpty" hidden>Chưa có giọng nào. Giọng bạn tải lên hoặc thu sẽ nằm ở đây để dùng lại.</p>
+              <p class="empty" id="savedEmpty" hidden>Chưa có giọng nào.</p>
             </div>
 
             <div class="sample" id="sample" hidden>
@@ -113,37 +115,29 @@
             <p class="note" id="voiceNote" role="status"></p>
 
             <div class="field">
-              <label for="refText">Lời trong đoạn mẫu <span class="field__opt">không bắt buộc</span></label>
-              <textarea id="refText" name="ref_text" rows="2" autocomplete="off" placeholder="Để trống thì Vọng tự chép lời"></textarea>
+              <label for="refText">Lời trong đoạn mẫu</label>
+              <textarea id="refText" name="ref_text" rows="2" autocomplete="off" placeholder="Để trống để tự chép lời"></textarea>
             </div>
           </section>
 
           <!-- 2. Text -->
           <section class="card card--text" aria-labelledby="textTitle">
-            <div class="card__head">
-              <h3 id="textTitle">Văn bản</h3>
-              <p class="card__hint"><kbd>⌘&nbsp;Enter</kbd> hoặc <kbd>Ctrl&nbsp;Enter</kbd> để đọc</p>
-            </div>
+            <h3 id="textTitle">Văn bản<span class="req" aria-hidden="true">*</span></h3>
             <div class="field">
               <label class="visually-hidden" for="text">Văn bản cần đọc</label>
-              <textarea id="text" name="text" rows="9" autocomplete="off" spellcheck="false"></textarea>
-              <p class="textmeta">
-                <span><span class="num" id="charCount">0</span>/<span class="num" id="charMax">6000</span> ký tự</span>
-                <span><span class="num" id="segCount">0</span> câu</span>
-                <span id="estDur"></span>
-              </p>
+              <textarea id="text" name="text" rows="9" autocomplete="off" spellcheck="false" required></textarea>
+              <p class="textmeta num"><span><span id="charCount">0</span>/<span id="charMax">6000</span></span></p>
             </div>
             <div class="tools">
               <div class="chips" role="group" aria-label="Câu mẫu">
                 <button type="button" class="chip" data-sample="numbers">Câu có số</button>
                 <button type="button" class="chip" data-sample="academic">Đoạn học thuật</button>
                 <button type="button" class="chip" data-sample="hello">Lời chào</button>
-                <button type="button" class="chip chip--pause" id="insertPause">Chèn khoảng nghỉ</button>
+                <button type="button" class="chip chip--pause" id="insertPause" title="Chèn [nghỉ 1s]; sửa số để đổi độ dài, ví dụ [nghỉ 800ms]">Chèn khoảng nghỉ</button>
               </div>
-              <p class="tools__help">Viết <code>[nghỉ 1.5s]</code> hoặc <code>[nghỉ 800ms]</code> để ngừng đúng chừng đó.</p>
             </div>
             <details class="normalized" id="normalized">
-              <summary>Xem văn bản sau chuẩn hoá</summary>
+              <summary>Sau chuẩn hoá</summary>
               <ol class="segments" id="segments"></ol>
             </details>
           </section>
@@ -157,7 +151,7 @@
               <div class="player__screen" id="screen" role="progressbar" aria-label="Tiến độ sinh audio" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
                 <div class="player__readout">
                   <p class="player__big num" id="pct">Chưa có audio</p>
-                  <p class="player__stage" id="stage">Chọn giọng mẫu rồi nhập văn bản</p>
+                  <p class="player__stage" id="stage"></p>
                   <p class="player__detail num" id="detail"></p>
                 </div>
                 <canvas class="player__wave" id="matrix" aria-hidden="true"></canvas>
@@ -178,7 +172,7 @@
             </div>
             <p class="go__why" id="goWhy" role="status"></p>
 
-            <dl class="stats" id="stats" aria-live="polite">
+            <dl class="stats" id="stats" aria-live="polite" hidden>
               <div><dt>Thời gian sinh</dt><dd class="num" id="sElapsed" data-empty="true">chưa có</dd></div>
               <div><dt>Độ dài</dt><dd class="num" id="sDur" data-empty="true">chưa có</dd></div>
               <div><dt>RTF</dt><dd class="num" id="sRtf" data-empty="true">chưa có</dd></div>
@@ -193,7 +187,7 @@
               <button type="button" class="linkbtn" id="resetParams">Về mặc định</button>
             </div>
             <fieldset class="chips-seg chips-seg--presets" id="presets">
-              <legend>Số bước giải mã</legend>
+              <legend class="visually-hidden">Số bước giải mã</legend>
             </fieldset>
             <div class="params" id="paramsBasic"></div>
             <details class="more">
@@ -221,9 +215,9 @@
             <tr class="skeleton"><td colspan="9"><span></span><span></span><span></span></td></tr>
           </tbody>
         </table>
-        <p class="empty" id="historyEmpty" hidden>Chưa đọc lần nào. Mỗi lần đọc sẽ hiện ở đây cùng thời gian sinh và RTF.</p>
+        <p class="empty" id="historyEmpty" hidden>Chưa có lần đọc nào.</p>
         <button type="button" class="linkbtn history__more" id="historyMore" aria-controls="historyBody" hidden></button>
-        <p class="empty empty--error" id="historyError" hidden>Không tải được lịch sử. Kiểm tra máy chủ rồi tải lại trang.</p>
+        <p class="empty empty--error" id="historyError" hidden>Không tải được lịch sử.</p>
       </div>
     </section>
 
@@ -236,19 +230,19 @@
       <dl class="layers">
         <div class="layer">
           <dt><span class="layer__n num" id="cVoices">0</span> giọng mẫu</dt>
-          <dd>Nhận diện bằng SHA-256 của file. Tải lại cùng một file thì không giải mã lại.</dd>
+          <dd>Trùng file thì dùng lại</dd>
         </div>
         <div class="layer">
           <dt><span class="layer__n num" id="cPrompts">0</span> voice prompt</dt>
-          <dd>Acoustic token và lời chép của giọng mẫu, lưu trên đĩa và trong RAM. Lần sau bỏ qua Vọng.</dd>
+          <dd>Lần sau bỏ qua bước chép lời</dd>
         </div>
         <div class="layer">
           <dt><span class="layer__n num" id="cSegments">0</span> câu đã sinh</dt>
-          <dd>Sửa một câu thì chỉ câu đó được sinh lại. Đổi khoảng nghỉ thì chỉ ghép lại.</dd>
+          <dd>Sửa câu nào, sinh lại câu đó</dd>
         </div>
         <div class="layer">
           <dt><span class="layer__n num" id="cResults">0</span> file hoàn chỉnh</dt>
-          <dd>Cùng nội dung và cấu hình thì phát ngay, không chạy GPU.</dd>
+          <dd>Phát ngay, không chạy GPU</dd>
         </div>
       </dl>
       <p class="cache__foot num" id="cacheFoot"></p>
@@ -262,7 +256,6 @@
         </figure>
         <div class="models__body">
           <h2 id="modelsTitle">Hai mô hình</h2>
-          <p class="block__lede">Cùng giọng mẫu, cùng văn bản, đổi mô hình ở đầu studio để so sánh.</p>
           <div class="modelcards" id="modelCards"></div>
         </div>
       </div>
@@ -273,7 +266,7 @@
     <div class="container footer__in">
       <p class="footer__mark">Vọng</p>
       <p>Đồ án môn Xử lý tiếng nói. OmniVoice: code Apache&nbsp;2.0, trọng số CC-BY-NC, chỉ dùng cho nghiên cứu phi thương mại.</p>
-      <p class="footer__credits" data-credits>Ảnh: <a href="https://commons.wikimedia.org/wiki/File:2017-04_Circumpolar_trails_sunset_at_La_Hague_lighthouse.jpg">Antoine Lamielle</a> (CC BY-SA 4.0), <a href="https://commons.wikimedia.org/wiki/File:Neumann_U87_Condenser_Microphone_-_Studio_A,_In_Your_Ear_Studios.jpg">Will Fisher</a> (CC BY-SA 2.0), Wikimedia Commons.</p>
+      <p class="footer__credits" data-credits>Ảnh: <a href="https://commons.wikimedia.org/wiki/File:2017-04_Circumpolar_trails_sunset_at_La_Hague_lighthouse.jpg">Antoine Lamielle</a> (CC BY-SA 4.0), <a href="https://commons.wikimedia.org/wiki/File:Neumann_U87_Condenser_Microphone_-_Studio_A,_In_Your_Ear_Studios.jpg">Will Fisher</a> (CC BY-SA 2.0), Wikimedia Commons. Giọng có sẵn: FLEURS (Google, CC BY 4.0).</p>
     </div>
   </footer>
 

@@ -106,6 +106,12 @@ Ngoài cache: model chỉ nạp một lần khi khởi động (fp16 trên GPU),
 
 Nút *Xoá cache* ở cuối trang xoá lớp 2 đến 4 và lịch sử, giữ lại giọng mẫu.
 
+## Giọng mẫu có sẵn
+
+Tab *Có sẵn* có 8 giọng người thật (4 nữ, 4 nam) lấy từ FLEURS tiếng Việt (Google, CC BY 4.0), nằm trong `backend/presets/` và được nạp vào kho giọng khi server khởi động. Mỗi giọng đi kèm lời đọc gốc, nên chọn xong là đọc được ngay, không qua bước chép lời.
+
+Các giọng được chọn bằng số đo, không theo cảm tính: cao độ trung vị (pYIN), độ biến thiên cao độ (độ lệch chuẩn, tính bằng bán cung), tốc độ nói (âm tiết trên giây tiếng nói), tỉ lệ tiếng nói trên ồn nền từ 25 dB trở lên, và Whisper nghe lại khớp lời gốc (WER dưới 6%). Số đo của từng giọng ghi trong `backend/presets/presets.json`.
+
 ## Chuẩn hoá văn bản tiếng Việt (đề xuất cải tiến)
 
 `normalize_text=True` của OmniVoice dùng WeTextProcessing, vốn nhắm tới tiếng Trung và tiếng Anh, nên đọc sai số và đơn vị trong câu tiếng Việt (thí nghiệm 5 trong notebook). `backend/textnorm_vi.py` viết lại trước khi đưa vào mô hình:

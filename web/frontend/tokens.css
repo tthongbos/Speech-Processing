@@ -1,6 +1,7 @@
 :root {
   --space-3xs: 2px; --space-2xs: 4px; --space-xs: 8px; --space-sm: 12px; --space-md: 16px; --space-lg: 24px; --space-xl: 40px; --space-2xl: 64px; --space-3xl: 96px; --space-4xl: 144px;
   --text-xs: 0.75rem; --text-sm: 0.875rem; --text-md: 1rem; --text-lead: 1.125rem; --text-title: 1.5rem; --text-section: 1.875rem; --text-figure: 3rem; --text-display: 3.75rem;
+  --text-hero: clamp(2.75rem, 6.4vw, 5.75rem);
   --text-mono: 0.75rem;
   --tracking-display: -0.057em; --tracking-section: -0.04em; --tracking-title: -0.025em; --tracking-body: -0.01em;
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1); --ease-in: cubic-bezier(0.7, 0, 0.84, 0); --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
@@ -29,6 +30,7 @@
   --color-success: oklch(77% 0.17 150);
   --color-on-light: oklch(12% 0.004 260);    /* text on the white action */
   --color-scrim: oklch(8.5% 0.004 260);
+  --color-head-tint: oklch(84% 0.075 240);   /* ice blue: lower stop of the hero headline ramp */
 
   --font-display: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
   --font-body: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;

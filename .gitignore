@@ -31,3 +31,6 @@ pytorch_model*.bin
 # Website runtime data
 web/cache/
 .hallmark/
+
+# preset demo voices (FLEURS, CC BY 4.0) ship with the web app
+!web/backend/presets/*.wav
