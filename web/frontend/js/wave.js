@@ -82,8 +82,23 @@ export function drawLevels(canvas, levels) {
   }
 }
 
-// The player: one thin blue line on deep navy. While audio is generated the line fills left to right;
-// afterwards it becomes the waveform, played part in blue, the rest dimmed.
+// Deterministic stand-in for speech: words as bursts of syllables, quiet gaps between them, fading at both ends.
+function speechShape(n) {
+  const out = new Float32Array(n);
+  const hash = (i) => { const x = Math.sin(i * 12.9898 + 4.1) * 43758.5453; return x - Math.floor(x); };
+  for (let i = 0; i < n; i++) {
+    const x = (i + 0.5) / n;
+    const env = Math.pow(Math.sin(Math.PI * x), 0.45);
+    const word = Math.abs(Math.sin(i * 0.105 + 0.6));
+    const syll = Math.pow(Math.abs(Math.sin(i * 0.47 + 0.2)), 1.3);
+    const gap = word < 0.16 ? 0.06 : 1;
+    out[i] = env * gap * (0.12 + 0.88 * syll * (0.55 + 0.45 * hash(i)) * Math.pow(word, 0.35));
+  }
+  return out;
+}
+
+// The player screen: a dot-matrix display on deep navy. Empty, it shows a ghost of a voice; while audio is
+// generated the same shape lights up left to right; afterwards it becomes the real waveform, played part in blue.
 export class WaveLine {
   constructor(canvas) {
     this.canvas = canvas;
@@ -91,7 +106,7 @@ export class WaveLine {
     this.progress = 0;
     this.peaks = null;
     this.playhead = 0;
-    this.pad = 2;
+    this.padX = 0;
     this.ro = new ResizeObserver(() => this.render());
     this.ro.observe(canvas);
   }
@@ -102,39 +117,43 @@ export class WaveLine {
   setPlayhead(f) { this.playhead = f; if (this.mode === "wave") this.render(); }
   columnAt(clientX) {
     const r = this.canvas.getBoundingClientRect();
-    return Math.max(0, Math.min(1, (clientX - r.left) / r.width));
+    return Math.max(0, Math.min(1, (clientX - r.left - this.padX) / Math.max(1, r.width - this.padX * 2)));
   }
 
   render() {
     const { ctx, w, h } = fit(this.canvas);
     ctx.clearRect(0, 0, w, h);
-    const mid = h / 2;
-    const on = token("--color-accent"), dim = token("--color-accent-dim"), faint = token("--color-navy-2");
-    ctx.lineCap = "round";
-    const line = (x0, x1, color, width) => {
-      ctx.strokeStyle = color; ctx.lineWidth = width;
-      ctx.beginPath(); ctx.moveTo(x0, mid); ctx.lineTo(x1, mid); ctx.stroke();
+    const pitch = w < 360 ? 8 : 9;
+    const radius = pitch * 0.3;
+    const cols = Math.max(1, Math.floor((w - pitch) / pitch) + 1);
+    const rows = Math.max(1, Math.floor((h - pitch) / pitch) + 1);
+    this.padX = (w - (cols - 1) * pitch) / 2;
+    const padY = (h - (rows - 1) * pitch) / 2;
+    const mid = (rows - 1) / 2;
+    const half = mid;
+
+    const off = token("--color-dot-off"), ghost = token("--color-dot-ghost");
+    const dim = token("--color-accent-dim"), on = token("--color-accent"), lead = token("--color-focus");
+    const dot = (c, r, color) => {
+      ctx.fillStyle = color;
+      ctx.beginPath();
+      ctx.arc(this.padX + c * pitch, padY + r * pitch, radius, 0, Math.PI * 2);
+      ctx.fill();
     };
-    if (this.mode === "dark") { line(this.pad, w - this.pad, faint, 1); return; }
-    if (this.mode === "idle") { line(this.pad, w - this.pad, dim, 1); return; }
-    if (this.mode === "progress") {
-      const x = this.pad + (w - 2 * this.pad) * this.progress;
-      line(this.pad, w - this.pad, faint, 2);
-      if (this.progress > 0) line(this.pad, x, on, 2);
-      ctx.fillStyle = on;
-      ctx.beginPath(); ctx.arc(x, mid, 4, 0, Math.PI * 2); ctx.fill();
-      return;
-    }
-    if (!this.peaks) return;
-    const step = 4;
-    const n = Math.floor((w - 2 * this.pad) / step);
-    const vals = resample(this.peaks, n);
-    ctx.lineWidth = 2;
-    for (let i = 0; i < n; i++) {
-      const x = this.pad + i * step + 1;
-      const half = Math.max(1, vals[i] * (h / 2 - 3));
-      ctx.strokeStyle = i / n < this.playhead ? on : dim;
-      ctx.beginPath(); ctx.moveTo(x, mid - half); ctx.lineTo(x, mid + half); ctx.stroke();
+    for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) dot(c, r, off);
+    if (this.mode === "dark") return;
+
+    const shape = this.mode === "wave" && this.peaks ? resample(this.peaks, cols) : speechShape(cols);
+    const edge = this.progress * cols;
+    for (let c = 0; c < cols; c++) {
+      let color = ghost;
+      if (this.mode === "progress") {
+        if (c < edge) color = edge - c < 1.5 ? lead : on;
+      } else if (this.mode === "wave") {
+        color = c / cols < this.playhead ? on : dim;
+      }
+      const reach = Math.round(Math.max(0, Math.min(1, shape[c])) * half);
+      for (let r = Math.round(mid - reach); r <= Math.round(mid + reach); r++) dot(c, r, color);
     }
   }
 }

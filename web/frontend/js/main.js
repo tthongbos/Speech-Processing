@@ -1,7 +1,7 @@
-import { api } from "./api.js?v=4";
-import { WaveLine, drawStrip, loadPeaks } from "./wave.js?v=4";
-import { Recorder } from "./recorder.js?v=4";
-import { defaultsOf, renderParams, renderPresets, syncPresets } from "./params.js?v=4";
+import { api } from "./api.js?v=5";
+import { WaveLine, drawStrip, loadPeaks } from "./wave.js?v=5";
+import { Recorder } from "./recorder.js?v=5";
+import { defaultsOf, renderParams, renderPresets, syncPresets } from "./params.js?v=5";
 
 const $ = (id) => document.getElementById(id);
 const nf = new Intl.NumberFormat("vi-VN", { maximumFractionDigits: 2 });

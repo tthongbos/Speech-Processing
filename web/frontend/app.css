@@ -1,6 +1,6 @@
 /* Hallmark · shape: app screen · genre: atmospheric · theme: brand (DESIGN (1).md, Superwhisper: aurora dissolving over midnight glass) · redesign: full
  * paper: oklch(8.5% 0.004 260) · accent: oklch(62% 0.2 252) · display: Inter 500, opsz, ss01 cv11 · body: Inter 400 · outlier: ui-monospace for kbd and code only
- * nav: floating pill, wordmark and four anchors · signature: the night lighthouse photograph filling the first screen, then the navy player whose thin blue line fills as the voice is generated · states: loading, empty, error, full on history, saved voices and the player
+ * nav: floating pill, wordmark and four anchors · signature: the night lighthouse photograph filling the first screen, then the navy dot-matrix player whose waveform lights up as the voice is generated · states: loading, empty, error, full on history, saved voices and the player
  * axes: dark/grotesk-sans/chromatic-blue · posture: restrained · hero: full-screen photograph of star trails over a lighthouse, centred text, fading into the canvas · imagery: 2 library photos · contrast: pass · v2.0.0 */
 /* Hallmark · pre-emit critique: P4 H4 E4 S4 R5 V5 · weakest: S, Inter on black is every voice tool; the night lighthouse photograph and the Vietnamese copy carry what only this project has */
 /* Hallmark · waive 2b · single-hue ramp from white to ice blue (hue 240), both stops tokens, 40 and 41 pass · the user asked for a larger gradient headline over the night photograph */
@@ -10,8 +10,8 @@
 /* Hallmark · dismissed kept-figures · the times and RTF figures named sit in history rows seven and later, still in the DOM behind the Xem tất cả button */
 /* Hallmark · dropped serverStatus, samplesLabel · the status chip was the machine-sounding line the user named; the sample chips now carry an aria-label */
 /* Hallmark · dropped "OmniVoice sẵn sàng trên GPU Apple" status chip, "Bốn lớp cache" lede, "Những lần đã đọc" lede, ghost wordmark · the user asked to remove machine-sounding lines */
-@import url("./tokens.css?v=4");
-@import url("./base.css?v=4");
+@import url("./tokens.css?v=5");
+@import url("./base.css?v=5");
 
 /* ---------- document ---------- */
 html { background: var(--color-paper); scroll-behavior: smooth; scroll-padding-top: var(--space-3xl); }
@@ -182,7 +182,7 @@ details > summary:focus-visible { outline: 2px solid var(--color-focus); outline
 .pausemark { display: inline-block; margin: 0 var(--space-xs); padding: 0 var(--space-xs); border-radius: var(--radius-pill); background: var(--color-navy); color: var(--color-ink-2); font-size: var(--text-xs); font-variant-numeric: tabular-nums; }
 .segments li > .pausemark:first-child { margin-left: 0; }
 
-/* ---------- the player: deep navy, one thin blue line ---------- */
+/* ---------- the player: deep navy, a dot-matrix screen ---------- */
 .output { display: flex; flex-direction: column; gap: var(--space-md); }
 .player { background: var(--color-navy); color: var(--color-ink); border-radius: var(--radius-card); box-shadow: var(--ring-card); padding: var(--space-lg); display: grid; gap: var(--space-md); }
 .player__screen { position: relative; display: grid; grid-template-rows: auto minmax(120px, 1fr); gap: var(--space-md); min-height: 260px; }

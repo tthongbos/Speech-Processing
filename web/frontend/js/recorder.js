@@ -1,6 +1,6 @@
 // Microphone capture with MediaRecorder, a live level meter and a hard time limit.
 
-import { drawLevels } from "./wave.js?v=4";
+import { drawLevels } from "./wave.js?v=5";
 
 const TYPES = ["audio/webm;codecs=opus", "audio/webm", "audio/mp4", "audio/ogg;codecs=opus"];
 

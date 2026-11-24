@@ -30,6 +30,8 @@
   --color-success: oklch(77% 0.17 150);
   --color-on-light: oklch(12% 0.004 260);    /* text on the white action */
   --color-scrim: oklch(8.5% 0.004 260);
+  --color-dot-off: oklch(25.5% 0.065 250);   /* unlit dot on the navy screen */
+  --color-dot-ghost: oklch(36% 0.085 251);  /* empty-screen voice outline */
   --color-head-tint: oklch(84% 0.075 240);   /* ice blue: lower stop of the hero headline ramp */
 
   --font-display: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
